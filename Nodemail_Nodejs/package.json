@@ -1,0 +1,17 @@
+{
+  "name": "nodemail_nodejs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "googleapis": "^92.0.0",
+    "nodemailer": "^6.7.2"
+  }
+}

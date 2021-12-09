@@ -1,0 +1,40 @@
+GET http://localhost:3000
+
+###
+POST http://localhost:3000/user/register
+Content-Type: application/json
+
+{
+    "email": "lehoangphuc20021999@gmail.com",
+    "password": "123123"
+}
+
+###
+POST http://localhost:3000/user/refresh-token
+Content-Type: application/json
+
+{
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MWE3OWM5NmVmZDY3ZTc3ZTM5MTUzNWMiLCJpYXQiOjE2Mzg1MTU2MzIsImV4cCI6MTYzODU1MTYzMn0.eDRY_Xe_6A3w32TXem2UnpTp-AT5KgkyTizNXVLzYQs"
+}
+
+
+###
+POST http://localhost:3000/user/login
+Content-Type: application/json
+
+{
+    "email": "lehoangphuc20021999@gmail.com",
+    "password": "123123"
+}
+
+###
+DELETE http://localhost:3000/user/logout
+Content-Type: application/json
+
+{
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MWE3OWM5NmVmZDY3ZTc3ZTM5MTUzNWMiLCJpYXQiOjE2Mzg1MTU2NTEsImV4cCI6MTYzODU1MTY1MX0.s5f8y2P-3AkmUd9dBd6DqUW3M7titsZGyTT6BkaD1As"
+}
+
+###
+GET http://localhost:3000/user/getlists
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MWE3OWM5NmVmZDY3ZTc3ZTM5MTUzNWMiLCJpYXQiOjE2Mzg1MTU2MzIsImV4cCI6MTYzODUxOTIzMn0.ZRQZUm3PAlGKZP2uOSCzVLTHFVgJLJ1VOwrlgYSEr_o

@@ -1,0 +1,19 @@
+GET http://localhost:8080/v1
+
+###
+GET http://localhost:8080/v1/users/404
+
+###
+POST http://localhost:8080/v1/users
+
+###
+GET http://localhost:8080/v1/users/id
+
+###
+DELETE http://localhost:8080/v1/users/id
+
+###
+PUT http://localhost:8080/v1/users/id
+
+###
+PATCH http://localhost:8080/v1/users/id

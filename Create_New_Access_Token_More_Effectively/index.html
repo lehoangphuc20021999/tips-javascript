@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <button id="_login">Login</button>
+    <button id="_getlist">Get List</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js"></script>
+    <script>
+        // create instance axios config
+        const instance = axios.create({
+            baseURL: '/api', // https:/localhost:3000/api
+            timeout: 3 * 1000, //miliseconds
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+
+        // Xủ lý data trước khi xuống server (Trước khi request)
+        instance.interceptors.request.use(async (config) => {
+            // Loại trừ các hàm login, refreshToken không cần kiểm tra accessToken đối với 2 route này
+            // Nếu không nó sẽ chạy một hàm đệ quy, nó làm cho trình duyệt bị chậm đi
+            if(config.url.indexOf('/login') >= 0 || config.url.indexOf('/refreshToken') >= 0){
+                return config
+            }
+
+            const token = await instance.getLocalAccessToken()
+            config.headers['X-Token'] = token
+            console.log(`Trước khi request xuống server:::`, token);
+
+            // const {token, timeExpired} = await instance.getLocalAccessToken()
+            // const now = new Date().getTime()
+
+            // if(timeExpired < now){
+            //     try { 
+            //         const {status, elements: {token, timeExpired}} = await refreshToken()
+            //         if(status === 'success'){
+            //             // Set token vs timeExpired localStorage
+            //             console.log({token, timeExpired})
+            //             await instance.setLocalAccessToken({token, timeExpired})
+            //             return config
+            //         }
+            //     } catch (error) {
+            //         return Promise.reject(err)
+            //     }
+            // }
+
+            return config
+        }, err => {
+            return Promise.reject(err)
+        })
+
+        // Xử lý data sau khi response từ server (Sau khi response)
+        instance.interceptors.response.use(async (response) => {
+            console.log('Sau khi server response:::', response.data)
+
+            const config = response.config
+            if(config.url.indexOf('/login') >= 0 || config.url.indexOf('/refreshToken') >= 0){
+                // Những router không cần check token
+                return response
+            }
+
+            const {code, msg} = response.data
+            if(code && code === 401){
+                if(msg && msg === 'jwt expired'){
+                    console.log('Trường hợp token hết hạn:::', msg);
+                    //step 1: get token from refreshtoken
+                    const {elements: {accessToken}} = await refreshToken()
+                    if(accessToken){
+                        console.log(`Đã lấy lại access thành công`, accessToken);
+                        //step 2: 
+                        config.headers['X-Token'] = accessToken
+                        //step 3: lưu accesstoken vào localStorage
+                        await instance.setLocalAccessToken(accessToken)
+
+                        return instance(config)
+                    }
+                }
+            }
+
+            return response
+        }, err => {
+            return Promise.reject(err)
+        })
+
+        // FUNCTION
+        const btn_login = document.getElementById('_login')
+        if (btn_login) {
+            btn_login.addEventListener('click', async () => {
+                const {status, elements: {accessToken}} = await login()
+                if(status === 'success'){
+                    // Set token vs timeExpired localStorage
+                    await instance.setLocalAccessToken(accessToken)
+                }
+            })
+        }
+        // END FUNCTION
+
+        const btn_getlist = document.getElementById('_getlist')
+        if(btn_getlist){
+            btn_getlist.addEventListener('click', async () =>{
+                const {status, elements} = await getUsers()
+                console.log("alaba trap")
+            })
+        }
+
+        async function getUsers(){
+            return (await instance.get('/users')).data
+        }
+
+        async function login() {
+            return (await instance.get('/login')).data
+        }
+
+        async function refreshToken() {
+            return (await instance.get('/refreshToken')).data
+        }
+
+        instance.setLocalAccessToken = async (token) => {
+            // Lưu trữ 1 object vào localstorage thành JSON để cho nhẹ hơn
+            window.localStorage.setItem('accessToken', token)
+        }
+
+        instance.getLocalAccessToken = async () => {
+            // Lưu trữ 1 object vào localstorage thành JSON để cho nhẹ hơn
+            return window.localStorage.getItem('accessToken') ? window.localStorage.getItem('accessToken') : null
+        }
+    </script>
+</body>
+
+</html>
